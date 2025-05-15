@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COVID-19 Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f9f9f9;
+      color: #222;
+    }
+    header {
+      background: #222;
+      padding: 10px 0;
+      text-align: center;
+      color: white;
+    }
+    .navbar a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+    .section {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+    }
+    h1, h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    p, ul {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #444;
+    }
+    ul li {
+      margin-bottom: 8px;
+    }
+    a {
+      color: #1E88E5;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .chart-container {
+      margin-top: 25px;
+    }
+    .dashboard-container {
+      text-align: center;
+    }
+    .dropdown-container {
+      margin: 15px 0;
+    }
+    select {
+      padding: 8px 12px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .country-stats p {
+      font-size: 1.1rem;
+      margin: 5px 0;
+    }
+    /* Contact / Support Section */
+#contactSection p {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+#contactSection ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: 1.1rem;
+}
+
+#contactSection ul li {
+  margin-bottom: 10px;
+}
+
+#contactSection ul li strong {
+  color: #222;
+}
+
+#contactSection a {
+  color: #1E88E5;
+  text-decoration: none;
+}
+
+#contactSection a:hover {
+  text-decoration: underline;
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div>Welcome, <%= user.email %> | <a href="/logout" style="color:#f44336;">Logout</a></div>
+    <nav class="navbar">
+      <a href="#" onclick="showSection('home')">Home</a>
+      <a href="#" onclick="showSection('stats')">COVID-19 Stats</a>
+      <a href="#" onclick="showSection('country')">Country-wise Stats</a>
+      <a href="#" onclick="showSection('contact')">Contact / Support</a>
+    </nav>
+  </header>
+
+  <!-- Home Section -->
+  <section id="homeSection" class="section">
+    <div class="home-container">
+      <h1>Welcome to the COVID-19 Dashboard</h1>
+      <p>
+        This platform provides real-time global and country-wise COVID-19 statistics.
+        Stay informed about the number of confirmed cases, recoveries, and deaths across the world.
+      </p>
+
+      <h2>About COVID-19</h2>
+      <p>
+        COVID-19 is a contagious disease caused by the coronavirus SARS-CoV-2.
+        It primarily spreads through respiratory droplets. Symptoms can range from mild to severe
+        and include fever, cough, shortness of breath, fatigue, and loss of taste or smell.
+      </p>
+
+      <h2>Common Symptoms</h2>
+      <ul>
+        <li>Fever or chills</li>
+        <li>Cough and sore throat</li>
+        <li>Shortness of breath</li>
+        <li>Loss of taste or smell</li>
+        <li>Fatigue and body aches</li>
+      </ul>
+
+      <h2>Prevention Tips</h2>
+      <ul>
+        <li>Wear a mask in crowded places</li>
+        <li>Wash hands frequently with soap and water</li>
+        <li>Maintain at least 6 feet distance from others</li>
+        <li>Avoid touching your face with unwashed hands</li>
+        <li>Get vaccinated and stay up to date with boosters</li>
+      </ul>
+
+      <h2>Emergency Helpline Numbers</h2>
+      <ul>
+        <li><strong>India:</strong> +91-11-23978046 / 1075 (Toll Free)</li>
+        <li><strong>USA:</strong> 1-800-232-4636 (CDC)</li>
+        <li><strong>UK:</strong> 111 (NHS Helpline)</li>
+      </ul>
+
+      <h2>Useful Resources</h2>
+      <ul>
+        <li><a href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019" target="_blank" rel="noopener noreferrer">WHO: COVID-19 Updates</a></li>
+        <li><a href="https://www.mohfw.gov.in/" target="_blank" rel="noopener noreferrer">Ministry of Health, India</a></li>
+        <li><a href="https://www.cdc.gov/coronavirus/" target="_blank" rel="noopener noreferrer">CDC, USA</a></li>
+        <li><a href="https://www.nhs.uk/conditions/coronavirus-covid-19/" target="_blank" rel="noopener noreferrer">NHS, UK</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Global Statistics Section -->
+  <section id="statsSection" class="section" style="display: none;">
+    <div class="dashboard-container">
+      <h2>COVID-19 Global Statistics</h2>
+      <p>
+        Below you'll find visual representations of how the pandemic has evolved globally,
+        giving insights into monthly case trends, continent-wise impact, and overall distribution.
+      </p>
+
+      <div class="chart-container">
+        <h3>Monthly COVID-19 Cases Trend</h3>
+        <p>
+          This line chart shows the number of COVID-19 cases reported globally each month.
+          It helps understand the rise or decline in infections over time.
+        </p>
+        <canvas id="lineChart"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <h3>COVID-19 Deaths by Continent</h3>
+        <p>
+          This bar chart compares the total number of reported deaths across continents.
+          It highlights the regional severity and helps assess global preparedness and response.
+        </p>
+                <canvas id="barChart"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <h3>Global COVID-19 Case Distribution</h3>
+        <p>
+          This pie chart illustrates the proportion of confirmed cases by continent,
+          providing a quick snapshot of the pandemic's geographic spread.
+        </p>
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Country-wise Stats Section -->
+  <section id="countrySection" class="section" style="display: none;">
+    <h2>Country-wise COVID-19 Statistics</h2>
+
+    <div class="dropdown-container">
+      <label for="countrySelect">Select a country:</label>
+      <select id="countrySelect">
+        <option value="">--Select--</option>
+      </select>
+    </div>
+
+    <div class="country-stats" style="margin-top: 20px;">
+      <p><strong>Confirmed Cases:</strong> <span id="confirmed">-</span></p>
+      <p><strong>Recovered:</strong> <span id="recovered">-</span></p>
+      <p><strong>Deaths:</strong> <span id="deaths">-</span></p>
+    </div>
+
+    <div class="chart-container" style="margin-top: 30px;">
+      <h3>Monthly COVID-19 Cases in Selected Country</h3>
+      <canvas id="countryLineChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Contact / Support Section -->
+  <section id="contactSection" class="section" style="display: none;">
+    <h2>Contact / Support</h2>
+    <p>If you have any questions, feedback, or issues, feel free to reach out to us:</p>
+    <ul>
+      <li><strong>Email:</strong> support@covidtracker.com</li>
+      <li><strong>Phone:</strong> +1-800-555-1234</li>
+      <li><strong>Help Center:</strong> <a href="https://example.com/help" target="_blank">Visit Help Center</a></li>
+    </ul>
+  </section>
+
+
+  <script>
+    // Sections control
+    function showSection(section) {
+      document.getElementById('homeSection').style.display = 'none';
+      document.getElementById('statsSection').style.display = 'none';
+      document.getElementById('countrySection').style.display = 'none';
+
+      if (section === 'home') {
+        document.getElementById('homeSection').style.display = 'block';
+      } else if (section === 'stats') {
+        document.getElementById('statsSection').style.display = 'block';
+      } else if (section === 'country') {
+        document.getElementById('countrySection').style.display = 'block';
+      }else if (section === 'contact') {
+        document.getElementById('contactSection').style.display = 'block';
+      }
+    }
+
+    showSection('home'); // default
+
+    // Sample data for charts and countries (replace with real API calls or data fetching)
+    const globalMonthlyCases = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      data: [10000, 50000, 500000, 2000000, 1000000, 700000, 400000, 300000, 250000, 150000, 90000, 40000]
+    };
+
+    const continentDeaths = {
+      labels: ['Asia', 'Europe', 'Africa', 'North America', 'South America', 'Oceania'],
+      data: [100000, 150000, 20000, 80000, 50000, 1000]
+    };
+
+    const continentCasesDistribution = {
+      labels: ['Asia', 'Europe', 'Africa', 'North America', 'South America', 'Oceania'],
+      data: [5000000, 4000000, 1000000, 3500000, 2000000, 100000]
+    };
+
+    // Initialize charts
+    const ctxLine = document.getElementById('lineChart').getContext('2d');
+    const lineChart = new Chart(ctxLine, {
+      type: 'line',
+      data: {
+        labels: globalMonthlyCases.labels,
+        datasets: [{
+          label: 'Monthly Cases',
+          data: globalMonthlyCases.data,
+          borderColor: '#1E88E5',
+          backgroundColor: 'rgba(30, 136, 229, 0.2)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    const barChart = new Chart(ctxBar, {
+      type: 'bar',
+      data: {
+        labels: continentDeaths.labels,
+        datasets: [{
+          label: 'Deaths',
+          data: continentDeaths.data,
+          backgroundColor: '#d32f2f'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels: continentCasesDistribution.labels,
+        datasets: [{
+          label: 'Cases Distribution',
+          data: continentCasesDistribution.data,
+          backgroundColor: [
+            '#4caf50',
+            '#2196f3',
+            '#ff9800',
+            '#9c27b0',
+            '#00bcd4',
+            '#ffc107'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'right' },
+          tooltip: { enabled: true }
+        }
+      }
+    });
+
+    // Country data (example)
+    const countriesData = {
+      'USA': {
+        confirmed: 33000000,
+        recovered: 29000000,
+        deaths: 590000,
+        monthlyCases: [500000, 600000, 750000, 1000000, 900000, 800000, 600000, 550000, 500000, 300000, 200000, 150000]
+      },
+      'India': {
+        confirmed: 29000000,
+        recovered: 27500000,
+        deaths: 350000,
+        monthlyCases: [400000, 450000, 800000, 2000000, 3000000, 2500000, 1500000, 900000, 700000, 400000, 250000, 150000]
+      },
+      'Brazil': {
+        confirmed: 17000000,
+        recovered: 15000000,
+        deaths: 470000,
+        monthlyCases: [300000, 350000, 400000, 700000, 800000, 700000, 600000, 500000, 400000, 350000, 300000, 200000]
+      }
+    };
+
+    // Populate country dropdown
+    const countrySelect = document.getElementById('countrySelect');
+    Object.keys(countriesData).forEach(country => {
+      const option = document.createElement('option');
+      option.value = country;
+      option.textContent = country;
+      countrySelect.appendChild(option);
+    });
+
+    const confirmedEl = document.getElementById('confirmed');
+    const recoveredEl = document.getElementById('recovered');
+    const deathsEl = document.getElementById('deaths');
+
+    const ctxCountryLine = document.getElementById('countryLineChart').getContext('2d');
+    let countryLineChart;
+
+    countrySelect.addEventListener('change', () => {
+      const selectedCountry = countrySelect.value;
+      if (!selectedCountry) {
+        confirmedEl.textContent = '-';
+        recoveredEl.textContent = '-';
+        deathsEl.textContent = '-';
+        if (countryLineChart) countryLineChart.destroy();
+        return;
+      }
+
+      const data = countriesData[selectedCountry];
+      confirmedEl.textContent = data.confirmed.toLocaleString();
+      recoveredEl.textContent = data.recovered.toLocaleString();
+      deathsEl.textContent = data.deaths.toLocaleString();
+
+      if (countryLineChart) countryLineChart.destroy();
+
+      countryLineChart = new Chart(ctxCountryLine, {
+        type: 'line',
+        data: {
+          labels: globalMonthlyCases.labels,
+          datasets: [{
+            label: `${selectedCountry} Monthly Cases`,
+            data: data.monthlyCases,
+            borderColor: '#fbc02d',
+            backgroundColor: 'rgba(251, 192, 45, 0.3)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

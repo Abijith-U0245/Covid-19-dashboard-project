@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - COVID-19 Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+    .login-container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      width: 320px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 24px;
+      font-weight: 700;
+      color: #4a4a4a;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #555;
+    }
+    input[type="email"],
+    input[type="password"] {
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      border: 1.8px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 6px #667eea;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 14px 0;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #5562c1;
+    }
+    .error-message {
+      background-color: #ffe0e0;
+      color: #d32f2f;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .footer-text {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h1>Login</h1>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div class="error-message"><%= errorMessage %></div>
+    <% } %>
+
+    <form id="loginForm" autocomplete="off">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required />
+
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="footer-text">
+      Don't have an account? <a href="/register">Register here</a>
+    </div>
+  </div>
+
+  <!-- Firebase App and Auth -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Your Firebase config (replace with your actual config)
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxBx3DZKhmVEB6mCn3ELu7BRzRlMjBAus",
+      authDomain: "dashboard-project-f4cc1.firebaseapp.com",
+      projectId: "dashboard-project-f4cc1",
+      storageBucket: "dashboard-project-f4cc1.firebasestorage.app",
+      messagingSenderId: "1097721769360",
+      appId: "1:1097721769360:web:c39f84da4de36ed6e55715",
+      measurementId: "G-GS5QML7ENY"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = loginForm.email.value;
+      const password = loginForm.password.value;
+
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const idToken = await userCredential.user.getIdToken();
+
+        // Send token to server for session login
+        const res = await fetch('/sessionLogin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken }),
+        });
+
+        if (res.redirected) {
+          window.location.href = res.url;
+        } else {
+          const data = await res.json();
+          alert(data.message || 'Login failed');
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>
