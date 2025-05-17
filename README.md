@@ -1,50 +1,105 @@
-# Covid-19 Dashboard Project
+#🦠 COVID-19 Dashboard Project
 
-A responsive web dashboard displaying up-to-date Covid-19 statistics and insights. Built with modern web technologies.
+A responsive web dashboard displaying real-time global and country-wise COVID-19 statistics. Built using modern web technologies and public health APIs.
 
-## Features
+---
 
-- Global and country-specific Covid-19 data
-- Interactive charts and graphs
-- Live updates with API integration
-- User-friendly and responsive design
+## 🚀 Features
 
-## Technologies Used
+- 🌍 Global and country-specific COVID-19 data
+- 📊 Interactive charts with Chart.js
+- 🔄 Live updates using [disease.sh](https://disease.sh/) API
+- 🔐 Firebase Authentication
+- 📱 Responsive, user-friendly interface
+- 🔁 Navigation across multiple dynamic sections
 
-- Node.js
-- Express.js
-- HTML, CSS, JavaScript (frontend)
-- Firebase Hosting (optional)
-- [disease.sh](https://disease.sh/) Covid-19 API
+---
 
-## Installation
+## 🛠️ Technologies Used
 
-1. Clone the repo:
+- **Backend**: Node.js, Express.js
+- **Frontend**: HTML, CSS, JavaScript
+- **Templating**: EJS
+- **Auth**: Firebase Authentication
+- **Charts**: Chart.js
+- **Hosting (optional)**: Firebase Hosting
+- **API Source**: [disease.sh](https://disease.sh/)
+
+---
+
+## 📦 Installation
+
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/Abijith-U0245/Covid-19-dashboard-project.git
    cd Covid-19-dashboard-project
+   ```
    
-2. Open index.html in your browser or
-   
-3. Serve locally (using any server, e.g., live-server):
+2. Install dependencies:
+
+   ```bash
+   npm install
+
+3. Start the server:
    
    ```bash
-   npm install -g live-server
-   live-server
+   node app.js
 
-## Usage
+4. Open your browser and go to:
+         (http://localhost:3000)
 
-- View global and country stats on the dashboard
-- Search specific countries
-- Interact with charts for detailed insights
+## 📸 Screenshots
 
-## Deployment
+### Login Page
+![Login Page](https://github.com/user-attachments/assets/accb43fa-4fca-48a6-a380-33cb36f5ac8e)
 
-This project can be hosted on Firebase Hosting or any static hosting platform:
 
-     ```bash
-      firebase deploy
+---
+
+### 🏠 Home Page
+![Home Page](https://github.com/user-attachments/assets/cf5cebbf-fe50-43c3-8412-b31dd8b37509)
+
+
+---
+
+### 🌍 Global Statistics
+![Global Stats](https://github.com/user-attachments/assets/65cad75e-a7e3-4585-82be-e411cff9b703)
+
+
+---
+
+### 🌎 Country-wise Statistics
+![Country-wise Stats](https://github.com/user-attachments/assets/5b30ac32-e188-49d3-b6f5-2ffdd1b5ff2f)
+
+
+---
+
+### 📞 Contact / Support
+![Contact Support](https://github.com/user-attachments/assets/eb11ac74-ece0-409b-84a4-6e7d08368c71)
+
+---
+
+## 🌐 Deployment
+This project can be deployed on:
+
+- Firebase Hosting
+- Render (Node.js Web Service)
+- Railway / Vercel (with custom setup)
+
+Example Firebase command:
+   ```bash
+   firebase deploy
+   ```
+
+## 🙋‍♂️ Usage
+
+- View live global trends
+- Explore country-specific statistics
+- Toggle between sections: Home, Global Stats, Country Stats, Support
+- Secure login required to access the dashboard
+
+
 
 ## Contributing
 
