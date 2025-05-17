@@ -1,4 +1,4 @@
-#🦠 COVID-19 Dashboard Project
+# 🦠 COVID-19 Dashboard Project
 
 A responsive web dashboard displaying real-time global and country-wise COVID-19 statistics. Built using modern web technologies and public health APIs.
 
