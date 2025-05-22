@@ -217,10 +217,11 @@
     </div>
 
     <div class="country-stats" style="margin-top: 20px;">
-      <p><strong>Confirmed Cases:</strong> <span id="confirmed">-</span></p>
-      <p><strong>Recovered:</strong> <span id="recovered">-</span></p>
-      <p><strong>Deaths:</strong> <span id="deaths">-</span></p>
-    </div>
+  <p><strong>Confirmed Cases:</strong> <span id="confirmedCount">-</span></p>
+  <p><strong>Recovered:</strong> <span id="recoveredCount">-</span></p>
+  <p><strong>Deaths:</strong> <span id="deathCount">-</span></p>
+</div>
+
 
     <div class="chart-container" style="margin-top: 30px;">
       <h3>Monthly COVID-19 Cases in Selected Country</h3>
@@ -241,203 +242,158 @@
 
 
   <script>
-    // Sections control
-    function showSection(section) {
-      document.getElementById('homeSection').style.display = 'none';
-      document.getElementById('statsSection').style.display = 'none';
-      document.getElementById('countrySection').style.display = 'none';
 
-      if (section === 'home') {
-        document.getElementById('homeSection').style.display = 'block';
-      } else if (section === 'stats') {
-        document.getElementById('statsSection').style.display = 'block';
-      } else if (section === 'country') {
-        document.getElementById('countrySection').style.display = 'block';
-      }else if (section === 'contact') {
-        document.getElementById('contactSection').style.display = 'block';
-      }
-    }
+function showSection(section) {
+  ['home','stats','country','contact'].forEach(s =>
+    document.getElementById(s + 'Section').style.display = 'none'
+  );
+  document.getElementById(section + 'Section').style.display = 'block';
+}
+showSection('home');
 
-    showSection('home'); // default
 
-    // Sample data for charts and countries (replace with real API calls or data fetching)
-    const globalMonthlyCases = {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      data: [10000, 50000, 500000, 2000000, 1000000, 700000, 400000, 300000, 250000, 150000, 90000, 40000]
-    };
+const ctxLine = document.getElementById('lineChart').getContext('2d');
+const lineChart = new Chart(ctxLine, {
+  type:'line',
+  data:{labels:[],datasets:[{
+    label:'Monthly Cases',
+    data:[],
+    borderColor:'#1E88E5',
+    backgroundColor:'rgba(30,136,229,.2)',
+    fill:true,tension:.4,pointRadius:4,pointHoverRadius:7
+  }]},
+  options:{responsive:true,plugins:{legend:{display:true}},scales:{y:{beginAtZero:true}}}
+});
 
-    const continentDeaths = {
-      labels: ['Asia', 'Europe', 'Africa', 'North America', 'South America', 'Oceania'],
-      data: [100000, 150000, 20000, 80000, 50000, 1000]
-    };
+const ctxBar = document.getElementById('barChart').getContext('2d');
+const barChart = new Chart(ctxBar, {
+  type:'bar',
+  data:{labels:[],datasets:[{label:'Deaths',data:[],backgroundColor:'#d32f2f'}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+});
 
-    const continentCasesDistribution = {
-      labels: ['Asia', 'Europe', 'Africa', 'North America', 'South America', 'Oceania'],
-      data: [5000000, 4000000, 1000000, 3500000, 2000000, 100000]
-    };
+const ctxPie = document.getElementById('pieChart').getContext('2d');
+const pieChart = new Chart(ctxPie, {
+  type:'pie',
+  data:{labels:[],datasets:[{label:'Cases',data:[],backgroundColor:[
+    '#4caf50','#2196f3','#ff9800','#9c27b0','#00bcd4','#ffc107'
+  ]}]},
+  options:{responsive:true,plugins:{legend:{position:'right'}}}
+});
 
-    // Initialize charts
-    const ctxLine = document.getElementById('lineChart').getContext('2d');
-    const lineChart = new Chart(ctxLine, {
-      type: 'line',
-      data: {
-        labels: globalMonthlyCases.labels,
-        datasets: [{
-          label: 'Monthly Cases',
-          data: globalMonthlyCases.data,
-          borderColor: '#1E88E5',
-          backgroundColor: 'rgba(30, 136, 229, 0.2)',
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointHoverRadius: 7
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: true },
-          tooltip: { enabled: true }
-        },
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
 
-    const ctxBar = document.getElementById('barChart').getContext('2d');
-    const barChart = new Chart(ctxBar, {
-      type: 'bar',
-      data: {
-        labels: continentDeaths.labels,
-        datasets: [{
-          label: 'Deaths',
-          data: continentDeaths.data,
-          backgroundColor: '#d32f2f'
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: true }
-        },
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
+async function fetchGlobalMonthlyCases() {
+  const r = await fetch('https://disease.sh/v3/covid-19/historical/all?lastdays=365');
+  const data = await r.json();
+  const monthTotals = Array(12).fill(0);
+  for (const [date,cases] of Object.entries(data.cases)) {
+    monthTotals[new Date(date).getMonth()] += cases;
+  }
+  const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  lineChart.data.labels = monthLabels;
+  lineChart.data.datasets[0].label = 'Monthly Global Cases';
+  lineChart.data.datasets[0].data = monthTotals;
+  lineChart.update();
+}
 
-    const ctxPie = document.getElementById('pieChart').getContext('2d');
-    const pieChart = new Chart(ctxPie, {
-      type: 'pie',
-      data: {
-        labels: continentCasesDistribution.labels,
-        datasets: [{
-          label: 'Cases Distribution',
-          data: continentCasesDistribution.data,
-          backgroundColor: [
-            '#4caf50',
-            '#2196f3',
-            '#ff9800',
-            '#9c27b0',
-            '#00bcd4',
-            '#ffc107'
-          ]
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'right' },
-          tooltip: { enabled: true }
-        }
-      }
-    });
+async function fetchContinentData() {
+  const r = await fetch('https://disease.sh/v3/covid-19/continents');
+  const data = await r.json();
+  const labels  = data.map(d => d.continent);
+  const deaths  = data.map(d => d.deaths);
+  const cases   = data.map(d => d.cases);
 
-    // Country data (example)
-    const countriesData = {
-      'USA': {
-        confirmed: 33000000,
-        recovered: 29000000,
-        deaths: 590000,
-        monthlyCases: [500000, 600000, 750000, 1000000, 900000, 800000, 600000, 550000, 500000, 300000, 200000, 150000]
-      },
-      'India': {
-        confirmed: 29000000,
-        recovered: 27500000,
-        deaths: 350000,
-        monthlyCases: [400000, 450000, 800000, 2000000, 3000000, 2500000, 1500000, 900000, 700000, 400000, 250000, 150000]
-      },
-      'Brazil': {
-        confirmed: 17000000,
-        recovered: 15000000,
-        deaths: 470000,
-        monthlyCases: [300000, 350000, 400000, 700000, 800000, 700000, 600000, 500000, 400000, 350000, 300000, 200000]
-      }
-    };
+  barChart.data.labels = labels;
+  barChart.data.datasets[0].data = deaths;
+  barChart.update();
 
-    // Populate country dropdown
-    const countrySelect = document.getElementById('countrySelect');
-    Object.keys(countriesData).forEach(country => {
-      const option = document.createElement('option');
-      option.value = country;
-      option.textContent = country;
-      countrySelect.appendChild(option);
-    });
+  pieChart.data.labels = labels;
+  pieChart.data.datasets[0].data = cases;
+  pieChart.update();
+}
 
-    const confirmedEl = document.getElementById('confirmed');
-    const recoveredEl = document.getElementById('recovered');
-    const deathsEl = document.getElementById('deaths');
+async function fetchCountryData(country) {
+  if (!country) return;
+  const [statsR,histR] = await Promise.all([
+    fetch(`https://disease.sh/v3/covid-19/countries/${country}?strict=true`),
+    fetch(`https://disease.sh/v3/covid-19/historical/${country}?lastdays=365`)
+  ]);
+  const stats = await statsR.json();
+  const hist  = await histR.json();
 
-    const ctxCountryLine = document.getElementById('countryLineChart').getContext('2d');
-    let countryLineChart;
+  document.getElementById('confirmedCount').textContent = stats.cases.toLocaleString();
+  document.getElementById('recoveredCount').textContent = stats.recovered.toLocaleString();
+  document.getElementById('deathCount').textContent    = stats.deaths.toLocaleString();
 
-    countrySelect.addEventListener('change', () => {
-      const selectedCountry = countrySelect.value;
-      if (!selectedCountry) {
-        confirmedEl.textContent = '-';
-        recoveredEl.textContent = '-';
-        deathsEl.textContent = '-';
-        if (countryLineChart) countryLineChart.destroy();
-        return;
-      }
+  const rawCases = hist.timeline.cases;
+const dates = Object.keys(rawCases);
+const dailyNewCases = [];
 
-      const data = countriesData[selectedCountry];
-      confirmedEl.textContent = data.confirmed.toLocaleString();
-      recoveredEl.textContent = data.recovered.toLocaleString();
-      deathsEl.textContent = data.deaths.toLocaleString();
+for (let i = 1; i < dates.length; i++) {
+  const today = rawCases[dates[i]];
+  const yesterday = rawCases[dates[i - 1]];
+  dailyNewCases.push({
+    date: dates[i],
+    newCases: today - yesterday
+  });
+}
 
-      if (countryLineChart) countryLineChart.destroy();
+const monthTotals = Array(12).fill(0);
+dailyNewCases.forEach(({ date, newCases }) => {
+  const month = new Date(date).getMonth();
+  monthTotals[month] += newCases;
+});
 
-      countryLineChart = new Chart(ctxCountryLine, {
-        type: 'line',
-        data: {
-          labels: globalMonthlyCases.labels,
-          datasets: [{
-            label: `${selectedCountry} Monthly Cases`,
-            data: data.monthlyCases,
-            borderColor: '#fbc02d',
-            backgroundColor: 'rgba(251, 192, 45, 0.3)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4,
-            pointHoverRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: true },
-            tooltip: { enabled: true }
-          },
-          scales: {
-            y: { beginAtZero: true }
-          }
-        }
-      });
-    });
-  </script>
+  const countryCtx = document.getElementById('countryLineChart').getContext('2d');
+if (window.countryChart) window.countryChart.destroy();
+window.countryChart = new Chart(countryCtx, {
+  type: 'line',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets: [{
+      label: `Monthly Cases – ${stats.country}`,
+      data: monthTotals,
+      borderColor: '#1E88E5',
+      backgroundColor: 'rgba(30,136,229,.2)',
+      fill: true,
+      tension: .4,
+      pointRadius: 4,
+      pointHoverRadius: 7
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: true } },
+    scales: { y: { beginAtZero: true } }
+  }
+});
+
+}
+
+async function populateCountrySelect() {
+  const sel = document.getElementById('countrySelect');
+  const res = await fetch('https://disease.sh/v3/covid-19/countries');
+  const data = await res.json();
+  // Sort alphabetically
+  data.sort((a,b) => a.country.localeCompare(b.country));
+  // Build options
+  sel.innerHTML = data.map(c =>
+    `<option value="${c.countryInfo.iso2 || c.country}">${c.country}</option>`
+  ).join('');
+  // Default selection
+  sel.value = 'USA';
+  fetchCountryData('USA');
+
+  sel.addEventListener('change', e => fetchCountryData(e.target.value));
+}
+
+
+(async function init() {
+  await Promise.all([fetchGlobalMonthlyCases(), fetchContinentData()]);
+  await populateCountrySelect();
+})();
+</script>
+
 </body>
 </html>
 
